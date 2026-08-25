@@ -9,7 +9,7 @@ name: UK VAT Pro — proof suite
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
   workflow_dispatch:
 
