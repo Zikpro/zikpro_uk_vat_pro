@@ -6,8 +6,8 @@ Unit-tests the interval calc (deterministic) + the schedule generator (dates + a
 
 import frappe
 
-from zikpro_uk_vat import cockpit as ck
-from zikpro_uk_vat import vat_adjustment_schedule as vs
+from zikpro_uk_vat import cockpit as ck  # noqa: F401 (kept for parity / future end-to-end checks)
+from zikpro_uk_vat_pro import pro_engines as vs  # CGS engine lives here (Pro), not in the base's vat_adjustment_schedule
 
 REF = "CGS-TEST-ASSET"
 
@@ -36,6 +36,13 @@ def run():
 	# £50,000 over 5 intervals = £10,000/yr; 100% → 60% = -40% → -£4,000.
 	check("interval calc: 5-yr, 100→60% → -4000", vs._cgs_interval_adjustment(50000, 5, 100, 60) == -4000.0,
 		  vs._cgs_interval_adjustment(50000, 5, 100, 60))
+
+	# B36: statutory HALF_UP rounding, NOT Python's banker's round(). 535/10 x 5% = 2.675 ->
+	# HMRC arithmetic gives 2.68; a bare round(2.675, 2) gives 2.67 (float repr + banker's).
+	check("interval calc HALF_UP (2.675 -> 2.68, not 2.67)", vs._cgs_interval_adjustment(535, 10, 0, 5) == 2.68,
+		  vs._cgs_interval_adjustment(535, 10, 0, 5))
+	scg = ck.compute_schedule_amount("Capital Goods Scheme", total_vat=535, intervals=10, baseline_pct=0, interval_pct=5)
+	check("CGS calculator HALF_UP (2.675 -> 2.68)", scg.get("amount") == 2.68, scg.get("amount"))
 
 	# --- generator: a row per KNOWN, non-zero interval on its annual anniversary ---
 	# intervals 2 (use 90% → +200) and 3 (use 70% → -200) create rows; interval 4 (use 80% =

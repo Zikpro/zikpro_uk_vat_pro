@@ -47,6 +47,11 @@ def run():
 	pe_none = ck._pe_annual_from_figures(box6=10000, box4=1000, exempt_net=0, months=12)
 	check("no exempt supplies → not applicable", pe_none["applicable"] is False and pe_none["adjustment"] == 0.0)
 
+	# B36: statutory HALF_UP rounding, NOT Python's banker's round(). 53.5 x 5% = 2.675 ->
+	# HMRC arithmetic gives 2.68; a bare round(2.675, 2) gives 2.67 (float repr + banker's).
+	sch = ck.compute_schedule_amount("Partial Exemption Annual", residual_vat=53.5, annual_pct=5, provisional_pct=0)
+	check("PE calculator HALF_UP (2.675 -> 2.68, not 2.67)", sch.get("amount") == 2.68, sch.get("amount"))
+
 	# The whitelisted end-to-end path runs against real figures without error.
 	live = ck.pe_annual_adjustment("2026-04-01", "2026-09-30")
 	check("full pe_annual_adjustment path returns a calc dict", isinstance(live, dict) and "adjustment" in live)
