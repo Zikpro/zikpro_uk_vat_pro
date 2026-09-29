@@ -81,8 +81,8 @@ def pe_annual_from_figures(box6, box4, exempt_net, months):
 	if total <= 0 or exempt_net <= 0 or box4 <= 0:
 		return {**base, "applicable": False, "recovery_pct": 100, "adjustment": 0.0}
 	recovery_pct = min(100, math.ceil(taxable_net / total * 100))
-	recoverable = round(box4 * recovery_pct / 100.0, 2)
-	exempt_input = round(box4 - recoverable, 2)
+	recoverable = c._r2(box4 * recovery_pct / 100.0)
+	exempt_input = c._r2(box4 - recoverable)
 	de_minimis = exempt_input < (625.0 * months) and exempt_input < 0.5 * box4
 	if de_minimis:
 		return {**base, "applicable": True, "de_minimis": True, "recovery_pct": 100,
@@ -122,7 +122,7 @@ def _cgs_interval_adjustment(total_input_vat, intervals, baseline_use_pct, inter
 	if not intervals:
 		return 0.0
 	annual_slice = flt(total_input_vat) / int(intervals)
-	return round(annual_slice * (flt(interval_use_pct) - flt(baseline_use_pct)) / 100.0, 2)
+	return c._r2(annual_slice * (flt(interval_use_pct) - flt(baseline_use_pct)) / 100.0)
 
 
 def generate_cgs_schedule(company, total_input_vat, intervals, acquisition_date, baseline_use_pct,
@@ -201,11 +201,11 @@ def compute_schedule_amount(schedule_type, total_vat=None, intervals=None, basel
 			base, use = float(baseline_pct), float(interval_pct)
 			if n <= 0:
 				return {"ok": False, "message": "Intervals must be 5 or 10."}
-			amount = round((total / n) * (use - base) / 100.0, 2)
+			amount = c._r2((total / n) * (use - base) / 100.0)
 			note = f"({total:g} / {n}) x ({use:g}% - {base:g}%) = {amount}"
 		elif schedule_type == "Partial Exemption Annual":
 			res, ann, prov = float(residual_vat), float(annual_pct), float(provisional_pct)
-			amount = round(res * (ann - prov) / 100.0, 2)
+			amount = c._r2(res * (ann - prov) / 100.0)
 			note = f"{res:g} x ({ann:g}% - {prov:g}%) = {amount}"
 		else:
 			return {"ok": False, "message": "No calculator for this schedule type."}
