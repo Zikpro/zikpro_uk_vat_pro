@@ -23,7 +23,7 @@ def _clean():
 		if d.docstatus == 1:
 			d.cancel()
 		frappe.delete_doc("Purchase Invoice", n, force=True, ignore_permissions=True)
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- dev smoke/verify harness run via `bench execute` (never a request path, not shipped runtime); bench-execute does not auto-commit, so fixtures/results must be committed to be readable
 
 
 def run():
@@ -41,7 +41,7 @@ def run():
 		t.company = COMPANY
 		t.append("taxes", {"tax_type": VAT_ACCOUNT, "tax_rate": 0})
 		t.insert(ignore_permissions=True)
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit -- dev smoke/verify harness run via `bench execute` (never a request path, not shipped runtime); bench-execute does not auto-commit, so fixtures/results must be committed to be readable
 	s = frappe.get_doc("VAT Settings", ck._connection()["settings"])
 	if not ck.vat_accounts(ck.OUTPUT_VAT):
 		s.append("vat_accounts", {"vat_type": ck.OUTPUT_VAT, "account": VAT_ACCOUNT})
@@ -56,7 +56,7 @@ def run():
 	s.save(ignore_permissions=True)
 	orig_scheme = frappe.db.get_value("VAT Settings", s.name, "vat_accounting_scheme")
 	frappe.db.set_value("VAT Settings", s.name, "vat_accounting_scheme", ck.CASH)
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- dev smoke/verify harness run via `bench execute` (never a request path, not shipped runtime); bench-execute does not auto-commit, so fixtures/results must be committed to be readable
 
 	try:
 		_run_checks(s, check)
@@ -65,7 +65,7 @@ def run():
 		# accrual proof then fails on the wrong basis.
 		_clean()
 		frappe.db.set_value("VAT Settings", s.name, "vat_accounting_scheme", orig_scheme)
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit -- dev smoke/verify harness run via `bench execute` (never a request path, not shipped runtime); bench-execute does not auto-commit, so fixtures/results must be committed to be readable
 
 	print(f"\n=== REVERSE-CHARGE CASH (P2-1) PROOF: {sum(results)}/{len(results)} passed ===", flush=True)
 	return sum(results) == len(results)
@@ -84,7 +84,7 @@ def _run_checks(s, check):
 						"expense_account": expense, "uom": "Nos", "item_tax_template": RC_TMPL})
 	pi.insert(ignore_permissions=True)
 	pi.submit()
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- dev smoke/verify harness run via `bench execute` (never a request path, not shipped runtime); bench-execute does not auto-commit, so fixtures/results must be committed to be readable
 
 	fig_on = ck.get_return_figures(*PERIOD)
 	check("basis is cash", fig_on.get("basis") == "cash", fig_on.get("basis"))
