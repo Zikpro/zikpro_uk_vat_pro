@@ -1,0 +1,8 @@
+# Dev/test tooling — not shipped runtime code. Frappe marketplace semgrep (and local gate)
+# should scan the product, not its smoke harnesses and test suites.
+smoke/
+zikpro_uk_vat/smoke/
+tests/
+zikpro_uk_vat/tests/
+**/test_*.py
+node_modules/

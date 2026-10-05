@@ -16,7 +16,7 @@ def _clean():
 	for n in frappe.get_all("VAT Adjustment Schedule", filters={"reason": ["like", "CGS interval%"]}, pluck="name"):
 		frappe.db.set_value("VAT Adjustment Schedule", n, "docstatus", 0, update_modified=False)
 		frappe.delete_doc("VAT Adjustment Schedule", n, force=True, ignore_permissions=True)
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- dev smoke/verify harness run via `bench execute` (never a request path, not shipped runtime); bench-execute does not auto-commit, so fixtures/results must be committed to be readable
 
 
 def run():

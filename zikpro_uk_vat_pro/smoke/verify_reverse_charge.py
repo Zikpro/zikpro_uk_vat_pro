@@ -25,7 +25,7 @@ def _rc_template():
 		t.company = COMPANY
 		t.append("taxes", {"tax_type": VAT_ACCOUNT, "tax_rate": 0})
 		t.insert(ignore_permissions=True)
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep: frappe-manual-commit -- dev smoke/verify harness run via `bench execute` (never a request path, not shipped runtime); bench-execute does not auto-commit, so fixtures/results must be committed to be readable
 	return full
 
 
@@ -35,7 +35,7 @@ def _clean():
 		if d.docstatus == 1:
 			d.cancel()
 		frappe.delete_doc("Purchase Invoice", n, force=True, ignore_permissions=True)
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- dev smoke/verify harness run via `bench execute` (never a request path, not shipped runtime); bench-execute does not auto-commit, so fixtures/results must be committed to be readable
 
 
 def run():
@@ -70,7 +70,7 @@ def run():
 									"in_box_6_7": 1, "notional_rate": 20})
 	s.save(ignore_permissions=True)
 	frappe.db.set_value("VAT Settings", s.name, "vat_accounting_scheme", ck.ACCRUAL)
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- dev smoke/verify harness run via `bench execute` (never a request path, not shipped runtime); bench-execute does not auto-commit, so fixtures/results must be committed to be readable
 
 	# A reverse-charge PURCHASE: net 1000, the RC template on the line, NO actual VAT tax line.
 	_clean()
@@ -88,7 +88,7 @@ def run():
 						"expense_account": expense, "uom": "Nos", "item_tax_template": rc_tmpl})
 	pi.insert(ignore_permissions=True)
 	pi.submit()
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- dev smoke/verify harness run via `bench execute` (never a request path, not shipped runtime); bench-execute does not auto-commit, so fixtures/results must be committed to be readable
 
 	# Direct: the notional = net × the treatment's notional rate, read independently of any
 	# actual VAT on the invoice (that's the whole point — the customer self-accounts).

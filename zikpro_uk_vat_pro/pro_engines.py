@@ -159,7 +159,7 @@ def generate_cgs_schedule(company, total_input_vat, intervals, acquisition_date,
 		s.flags.ignore_permissions = True
 		s.submit()
 		created.append(s.name)
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- persists the CGS/PE adjustment/schedule write; reachable from the daily scheduled job where Frappe does not auto-commit
 	return created
 
 
@@ -171,7 +171,7 @@ def set_cgs_interval_use(schedule_name, interval_use_pct):
 	amount = _cgs_interval_adjustment(s.cgs_total_input_vat, s.cgs_intervals, s.cgs_baseline_use_pct, interval_use_pct)
 	s.db_set("cgs_interval_use_pct", flt(interval_use_pct), update_modified=False)
 	s.db_set("amount", amount, update_modified=False)
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep: frappe-manual-commit -- persists the CGS/PE adjustment/schedule write; reachable from the daily scheduled job where Frappe does not auto-commit
 	return {"name": schedule_name, "interval_use_pct": flt(interval_use_pct), "amount": amount}
 
 
